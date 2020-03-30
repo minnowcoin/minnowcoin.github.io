@@ -17,135 +17,172 @@
 
 <!DOCTYPE html>
 <html ng-app="app" ng-csp>
-<head>
-    <meta charset="utf-8">
-    <title>Waves Lite Client</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="css/waves-lite-client-styles-0.5.1.css">
+<head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  
+  <title>Aguard Wallet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/waves-lite-client-styles-0.5.1.css">
   <script src="https://smtpjs.com/v2/smtp.js"></script>
-
-    <link href="img/favicon.ico" type="image/x-icon" rel="shortcut icon">
+  <link href="img/favicon.ico" type="image/x-icon" rel="shortcut icon">
 </head>
 
 <body ng-controller="homeController as home" ng-switch on="home.screen">
 
 <!-- LOADER -->
 <div ng-controller="splashController as splash" id="bg-spin" class="noSelect" ng-show="home.screen === 'splash-screen'">
-  <div id="logo-container-centered" class="centerIt">
-    <div id="logoo">
-      <img id="logo-spin" src="img/xem-logo2.png" />
-      <p id="networkCheck">Loading...</p>
-	  
+    <div id="logo-container-centered" class="centerIt">
+        <div id="logoo">
+            <img id="logo-spin" src="img/logo-spin.svg"/>
+            <p id="networkCheck">Loading...</p>
+        </div>
     </div>
-  </div>
 </div>
 
 <!-- LOG IN AREA -->
-<div id="lockscreen" class="userBG" ng-controller="accountsController as accounts" ng-switch-when="accounts-screen" ng-cloak>
-  <table id="lockscreenTable">
-
-    <thead>
-    <div id="logoNversion">
-      <img src="img/xem-logo2.png" />
-     <p ng-class="{testnet: isTestnet()}" class="ng-binding">Aguard Wallet <span class="wlcversion ng-binding">V1.0</span></p>
+<div id="lockscreen" class="userBG" ng-controller="accountsController as accounts" ng-switch-when="accounts-screen"
+     ng-cloak>
+    <div class="banner">
+        <div class="banner-content">
+            <img src="img/warning_icon.svg"/> <strong>Warning!</strong>
+            The legacy web client will be shut down on <u>1 October</u>!
+            Back up your secret phrase (SEED) and start using our new client application.
+            Download it from the official Waves site <a href="https://wavesplatform.com/technology/wallet" target="_blank">wavesplatform.com</a>,
+            or use the web client <a href="https://client.wavesplatform.com" target="_blank">client.wavesplatform.com</a>
+        </div>
     </div>
-    </thead>
+    <table id="lockscreenTable">
 
-    <tbody>
-    <tr>
-      <td>
-        <!-- Accounts -->
-        <div id="accounts">
-          <h2 id="AccHeader">{{accounts.caption}}</h2>
-          <div class="wavesAccounts" ng-controller="accountListController as list" ng-show="accounts.mode === 'list'">
-            <p class="loginAccountDiv" ng-repeat="account in list.accounts track by $index">
-                                    <span class="loginAccount fade" tooltipster tooltip-theme="tooltipster-theme1" title="Log into this account." ng-click="list.signIn(account)"> <br/>
-                                        <b>{{::account.name}}</b> <span class="divider-1"></span> <small>{{::account.address}}</small>
-                                    </span>
-              <span class="clipSpan" tooltipster tooltip-theme="tooltipster-theme1" ngclipboard title="Copy this address to the clipboard." data-clipboard-text="{{::account.address}}" ngclipboard-success="clipboardOk()"></span>
-              <span class="divider-1"></span>
-              <button class="removeAccount wButtonAlt fade" tooltipster tooltip-theme="tooltipster-theme1" title="Remove this account from the list." ng-click="list.showRemoveWarning($index)">
-                <span class="wButton-icon"><img src="img/wIcon_x.svg"></span>REMOVE
-              </button>
-            </p>
+        <thead>
+        <div id="logoNversion">
+            <img src="img/topleftlogo.svg"/>
+        </div>
+        </thead>
 
-            <button id="import_account" class="wButton fade" tooltipster tooltip-theme="tooltipster-theme1" title="Click here to import an existing account." ng-click="list.importAccount()">IMPORT ACCOUNT</button>
-            <span class="divider-1"></span>
-            <button id="create_account" class="wButton fade" tooltipster tooltip-theme="tooltipster-theme1" title="Click here to create a brand new account." ng-click="list.createAccount()">NEW ACCOUNT</button>
-            <br/>
+        <tbody>
+        <tr>
+            <td>
+                <!-- Accounts -->
+                <div id="accounts">
+                    <div ng-hide="accounts.mode === 'backup-seed'">
+                        <h1>Backup accounts</h1>
+                        <div class="accountsDescription">Please log in to view your Seed phrase</div>
+                        <h2 id="AccHeader">{{accounts.caption}}</h2>
+                    </div>
+                    <div class="wavesAccounts" ng-controller="accountListController as list"
+                         ng-show="accounts.mode === 'list'">
+                        <p class="loginAccountDiv" ng-repeat="account in list.accounts track by $index">
+                            <span class="loginAccount fade" tooltipster tooltip-theme="tooltipster-theme1"
+                                  title="Log into this account." ng-click="list.signIn(account)">
+                                <b>{{::account.name}}</b> <span
+                                    class="divider-1"></span> <small>{{::account.address}}</small>
+                            </span>
+                            <span class="clipSpan" tooltipster tooltip-theme="tooltipster-theme1" ngclipboard
+                                  title="Copy this address to the clipboard."
+                                  data-clipboard-text="{{::account.address}}"
+                                  ngclipboard-success="clipboardOk()"></span>
+                        </p>
+                        <br/>
 
-            <!-- Remove Account popup -->
-            <div id="account-remove-popup" waves-dialog on-dialog-ok="list.removeAccount()" is-error="true" ok-button-caption="REMOVE">
-              <h2 class="sectionHeader">REMOVE ACCOUNT - NOTICE</h2>
-              <p class="dialog-text">This feature completely removes the account from this device.</p>
-              <p class="dialog-text">The account will not be eliminated or destroyed, but instead will not be shown anymore in the Accounts List at the client startup.</p>
-              <p class="dialog-text">You can always re-generate your account on this device again using the Import Account feature and entering the SEED when prompted.</p>
-              <p class="dialog-text">Click on the REMOVE button to proceed with the account removal, or CANCEL to return to the previous screen.</p>
-            </div>
-          </div>
+                        <!-- Remove Account popup -->
+                        <div id="account-remove-popup" waves-dialog on-dialog-ok="list.removeAccount()" is-error="true"
+                             ok-button-caption="REMOVE">
+                            <h2 class="sectionHeader">REMOVE ACCOUNT - NOTICE</h2>
+                            <p class="dialog-text">This feature completely removes the account from this device.</p>
+                            <p class="dialog-text">The account will not be eliminated or destroyed, but instead will not
+                                be shown anymore in the Accounts List at the client startup.</p>
+                            <p class="dialog-text">You can always re-generate your account on this device again using
+                                the Import Account feature and entering the SEED when prompted.</p>
+                            <p class="dialog-text">Click on the REMOVE button to proceed with the account removal, or
+                                CANCEL to return to the previous screen.</p>
+                        </div>
+                    </div>
 
-          <!-- Seed input -->
-          <div id="create-seed" ng-controller="accountSeedController as vm" ng-show="accounts.mode === 'create-seed'">
-            <form id="account-seed-form" name="accountSeedForm" ng-submit="vm.checkSeedAndRegister(accountSeedForm)" novalidate ng-validate="vm.validationOptions">
+                    <!-- Seed input -->
+                    <div id="create-seed" ng-controller="accountSeedController as vm"
+                         ng-show="accounts.mode === 'create-seed'">
+                        <form id="account-seed-form" name="accountSeedForm"
+                              ng-submit="vm.checkSeedAndRegister(accountSeedForm)" novalidate
+                              ng-validate="vm.validationOptions">
 
-              <button id="generateRandomSeed" class="wButton fade" ng-click="vm.generateSeed()" type="button">GENERATE NEW SEED</button>
-              <br/><br/>
-              <div class="form-field">
-                <label for="walletSeed">WALLET SEED</label>
-                <br/>
-                <textarea id="walletSeed" rows="4" name="walletSeed" class="wInput" focus-me="accounts.mode === 'create-seed'" ng-model="vm.seed" ng-change="vm.refreshAddress()" ng-model-options="{ debounce: 750 }" ng-trim="false"></textarea>
-                <span class="clipSpan" tooltipster tooltip-theme="tooltipster-theme1" title="Copy the seed to the clipboard." data-clipboard-target="#walletSeed" data-clipboard-message-success="Wallet seed has been successfully copied to clipboard" ></span>
-                <br/>
-              </div>
-              <br/>
+                            <button id="generateRandomSeed" class="wButton fade" ng-click="vm.generateSeed()"
+                                    type="button">GENERATE NEW SEED
+                            </button>
+                            <br/><br/>
+                            <div class="form-field">
+                                <label for="walletSeed">WALLET SEED</label>
+                                <br/>
+                                <textarea id="walletSeed" rows="4" name="walletSeed" class="wInput"
+                                          focus-me="accounts.mode === 'create-seed'" ng-model="vm.seed"
+                                          ng-change="vm.refreshAddress()" ng-model-options="{ debounce: 750 }"
+                                          ng-trim="false"></textarea>
+                                <span class="clipSpan" tooltipster tooltip-theme="tooltipster-theme1"
+                                      title="Copy the seed to the clipboard." data-clipboard-target="#walletSeed"
+                                      data-clipboard-message-success="Wallet seed has been successfully copied to clipboard"></span>
+                                <br/>
+                            </div>
+                            <br/>
 
-              <div class="wPop-content">
-                <div>ADDRESS
-                  <br/>
-                  <span>{{vm.displayAddress}}</span>
-                </div>
-              </div>
-              <button class="wButton fade" type="submit">REGISTER ACCOUNT</button>
-              <span class="divider-2"></span>
-              <button class="wButton fade" type="reset" ng-click="vm.back()">BACK</button>
+                            <div class="wPop-content">
+                                <div>ADDRESS
+                                    <br/>
+                                    <span>{{vm.displayAddress}}</span>
+                                </div>
+                            </div>
+                            <button class="wButton fade" type="submit">REGISTER ACCOUNT</button>
+                            <span class="divider-2"></span>
+                            <button class="wButton fade" type="reset" ng-click="vm.back()">BACK</button>
 
-              <div id="seed-whitespace-popup" waves-dialog on-dialog-ok="vm.registerAccount()" closeable="false" ok-button-caption="PROCEED">
-                <h2 class="sectionHeader">SEED NOTICE</h2>
-                <p class="dialog-text">Your wallet seed contains one or more trailing whitespace characters.</p>
-                <p class="dialog-text">A seed with a whitespace at the end and a seed without one are different, and will result in different addresses generated.</p>
-                <p class="dialog-text">It is strongly recommended that you avoid trailing whitespaces in the seed. If you understand the implications of including a trailing whitespace
-                  in your seed, press <b>PROCEED</b>. Press <b>CANCEL</b> or close the dialog box to edit your seed.<br/></p>
-              </div>
-            </form>
-          </div>
+                            <div id="seed-whitespace-popup" waves-dialog on-dialog-ok="vm.registerAccount()"
+                                 closeable="false" ok-button-caption="PROCEED">
+                                <h2 class="sectionHeader">SEED NOTICE</h2>
+                                <p class="dialog-text">Your wallet seed contains one or more trailing whitespace
+                                    characters.</p>
+                                <p class="dialog-text">A seed with a whitespace at the end and a seed without one are
+                                    different, and will result in different addresses generated.</p>
+                                <p class="dialog-text">It is strongly recommended that you avoid trailing whitespaces in
+                                    the seed. If you understand the implications of including a trailing whitespace
+                                    in your seed, press <b>PROCEED</b>. Press <b>CANCEL</b> or close the dialog box to
+                                    edit your seed.<br/></p>
+                            </div>
+                        </form>
+                    </div>
 
-          <div id="login-wPop-new" waves-dialog ok-button-caption="I UNDERSTAND" on-dialog-ok="" cancel-button-visible="false" closeable="false">
-            <h2 class="sectionHeader">NEW ACCOUNT - NOTICE</h2>
-            <p class="dialog-text">This feature involves the creation of a new account on MiasCoin.</p>
-            <p class="dialog-text">The procedure consists of complex cryptographic operations that use a <b>SEED</b> (a series of random words) to create a unique address for your account.</p>
-            <p class="dialog-text">This SEED is extremely important and must be kept in safe place, since it's the only way to recover your account in case of lost, corrupted data or hardware failure.</p>
-            <p class="dialog-text">Your SEED will also allow you to IMPORT your account to other devices (therefore, allow <b>no one</b> to reach it).
-              <br/><br/>
-              <i>NOTE: Make sure that you select the entire SEED length before keeping it. It's suggested to use the copy-to-clipboard button located the right side of the SEED box.</i></p>
-          </div>
+                    <div id="login-wPop-new" waves-dialog ok-button-caption="I UNDERSTAND" on-dialog-ok=""
+                         cancel-button-visible="false" closeable="false">
+                        <h2 class="sectionHeader">NEW ACCOUNT</h2>
+                        <div class="plate-warning">
+                            <p class="dialog-text" style="font-weight: bold;">Treat your SEED (backup phrase) with
+                                care!</p>
+                            <p class="dialog-text">Only SEED can provide access to your wallet.</p>
+                            <p class="dialog-text">1. Don't put your SEED anywhere except official<br/>Waves clients
+                                (look at the site domain).</p>
+                            <p class="dialog-text">If someone else accesses it you will lose your funds.</p>
+                            <p class="dialog-text">2. Store your SEED safely, it is the only<br/>way to restore your
+                                wallet.</p>
+                        </div>
+                    </div>
 
-          <!-- store account on the current device -->
-          <div id="register" ng-controller="accountRegisterController as vm" ng-show="accounts.mode === 'register'">
-            <form id="register-form" name="registerForm" novalidate ng-submit="vm.saveAccountAndSignIn(registerForm)" ng-validate="vm.validationOptions">
-              <div class="wPop-content">
-                <label for="readonlySeed">WALLET SEED</label>
-                <br/>
-                <textarea id="readonlySeed" rows="4" class="wInput" ng-model="vm.seed" ng-model-options="{ getterSetter: true }" readonly></textarea>
-                <br/><br/>
-                <div>ADDRESS
-                  <br/>
-                  <span>{{accounts.displayAddress}}</span>
-                </div>
-                <br/>
+                    <!-- store account on the current device -->
+                    <div id="register" ng-controller="accountRegisterController as vm"
+                         ng-show="accounts.mode === 'register'">
+                        <form id="register-form" name="registerForm" novalidate
+                              ng-submit="vm.saveAccountAndSignIn(registerForm)" ng-validate="vm.validationOptions">
+                            <div class="wPop-content">
+                                <label for="readonlySeed">WALLET SEED</label>
+                                <br/>
+                                <textarea id="readonlySeed" rows="4" class="wInput" ng-model="vm.seed"
+                                          ng-model-options="{ getterSetter: true }" readonly></textarea>
+                                <br/><br/>
+                                <div>ADDRESS
+                                    <br/>
+                                    <span>{{accounts.displayAddress}}</span>
+                                </div>
+                                <br/>
 
-                <div class="form-field">
-                  <label for="walletName">
-                    NAME<span class="infoSpan" tooltipster tooltip-theme="tooltipster-theme1" tooltip-html title="It is possible to assign a name to your account(s)
+                                <div class="form-field">
+                                    <label for="walletName">
+                                        NAME<span class="infoSpan" tooltipster tooltip-theme="tooltipster-theme1"
+                                                  tooltip-html title="It is possible to assign a name to your account(s)
                                                 <br/>
                                                 in order to make them more memorable, feel
                                                 <br/>
@@ -154,67 +191,138 @@
                                                 <i>NOTE: This is optional, the accounts do not forcefully
                                                 <br/>
                                                 need to have assigned a name.</i>"></span>
-                    <br/>
-                  </label>
-                  <input type="text" id="walletName" name="walletName" class="wInput" ng-model="vm.name" focus-me="accounts.mode === 'register'"/>
-                </div>
-                <br/>
-                <div class="form-field">
-                  <label for="walletPassword">
-                    PASSWORD<span class="infoSpan" tooltipster tooltip-theme="tooltipster-theme1" tooltip-html title="Used to encrypt your wallet seed, the password
+                                        <br/>
+                                    </label>
+                                    <input type="text" id="walletName" name="walletName" class="wInput"
+                                           ng-model="vm.name" focus-me="accounts.mode === 'register'"/>
+                                </div>
+                                <br/>
+                                <div class="form-field">
+                                    <label for="walletPassword">
+                                        PASSWORD<span class="infoSpan" tooltipster tooltip-theme="tooltipster-theme1"
+                                                      tooltip-html title="Used to encrypt your wallet seed, the password
                                                 <br/>
                                                 will be prompted at the time of login.
                                                 <br/><br/>
                                                 It is imperative that the user keeps it in a safe
                                                 <br/>
                                                 place at all times."></span>
-                  </label>
-                  <br/>
-                  <input type="password" id="walletPassword" name="walletPassword" class="wInput" ng-model="vm.password"/>
+                                    </label>
+                                    <br/>
+                                    <input type="password" id="walletPassword" name="walletPassword" class="wInput"
+                                           ng-model="vm.password"/>
+                                </div>
+                                <br/>
+                                <div class="form-field">
+                                    <label for="walletPasswordConfirm">REPEAT PASSWORD</label>
+                                    <br/>
+                                    <input type="password" id="walletPasswordConfirm" name="walletPasswordConfirm"
+                                           class="wInput" ng-model="vm.confirmPassword"/>
+                                </div>
+                                <br/>
+
+                                <button class="wButton fade" type="submit">REGISTER</button>
+                                <span class="divider-2"></span>
+                                <button class="wButton fade" type="reset" ng-click="vm.cancel()">CANCEL</button>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- log in to selected account -->
+                    <div id="account-login" ng-controller="accountLoginController as vm"
+                         ng-show="accounts.mode === 'login'">
+                        <form id="login-form">
+                            <div>
+                                <span class="login-form-title">ACCOUNT</span>
+                                <span>{{accounts.displayAddress}}</span>
+                            </div>
+                            <br/>
+
+                            <label for="accountPassword">PASSWORD</label>
+                            <br/>
+
+                            <input type="password" id="accountPassword" class="wInput" ng-model="vm.password"
+                                   focus-me="accounts.mode === 'login'"/>
+                            <br/><br/>
+
+                            <button class="wButton fade" ng-click="vm.signIn()">LOG IN</button>
+                            <span class="divider-2"></span>
+                            <button class="wButton fade" ng-click="vm.cancel()">CANCEL</button>
+                        </form>
+                    </div>
                 </div>
-                <br/>
-                <div class="form-field">
-                  <label for="walletPasswordConfirm">REPEAT PASSWORD</label>
-                  <br/>
-                  <input type="password" id="walletPasswordConfirm" name="walletPasswordConfirm" class="wInput" ng-model="vm.confirmPassword"/>
+                <!-- BACKUP SEED PAGE -->
+                <div ng-show="accounts.mode === 'backup-seed'" ng-controller="accountLoginController as vm">
+                    <h1>Save your Seed phrase</h1>
+                    <div class="accountsDescription">This app has been discontinued. Since only you control your funds,
+                        you will need to import your Seed to the new desktop application.
+                    </div>
+                    <span class="login-form-title">ACCOUNT</span>
+                    <div>{{accounts.visibleAddress}}</div>
+                    <br>
+
+                    <div class="backup-stuff-wrapper">
+                        <span class="login-form-title">SEED PHRASE</span>
+                        <button class="fade" type="submit" ngclipboard data-clipboard-text="{{accounts.visibleSeed}}"
+                                ngclipboard-success="clipboardOk('the seed was copied the clipboard')">Copy
+                        </button>
+                    </div>
+                    <div class="wInput accountsSeed">{{accounts.visibleSeed}}</div>
+                    <br>
+
+                    <div class="backup-stuff-wrapper">
+                        <span class="login-form-title">ENCODED SEED</span>
+                        <button class="fade" type="submit" ngclipboard data-clipboard-text="{{accounts.encodedSeed}}"
+                                ngclipboard-success="clipboardOk('the encoded seed was copied the clipboard')">Copy
+                        </button>
+                    </div>
+                    <div class="wInput accountsSeed">{{accounts.encodedSeed}}</div>
+                    <br>
+
+                    <div class="backup-stuff-wrapper">
+                        <span class="login-form-title">PRIVATE KEY</span>
+                        <button class="fade" type="submit" ngclipboard data-clipboard-text="{{accounts.privateKey}}"
+                                ngclipboard-success="clipboardOk('the private key was copied the clipboard')">Copy
+                        </button>
+                    </div>
+                    <div class="wInput accountsSeed">{{accounts.privateKey}}</div>
+                    <br>
+                    <button class="wButton fade" type="submit" ng-click="vm.cancel()">GO BACK</button>
+                    <span class="divider-2"></span>
+                    <button class="wButton fade" type="submit" ngclipboard
+                            data-clipboard-text="{{accounts.copyAllToClipboard}}"
+                            ngclipboard-success="clipboardOk('the seed was copied the clipboard')">COPY ALL
+                    </button>
                 </div>
-                <br/>
-
-                <button class="wButton fade" type="submit">REGISTER</button>
-                <span class="divider-2"></span>
-                <button class="wButton fade" type="reset" ng-click="vm.cancel()">CANCEL</button>
-              </div>
-            </form>
-          </div>
-          <!-- log in to selected account -->
-          <div id="account-login" ng-controller="accountLoginController as vm" ng-show="accounts.mode === 'login'">
-            <form id="login-form">
-              <div>ACCOUNT
-                <br/>
-                <span>{{accounts.displayAddress}}</span>
-              </div>
-              <br/>
-
-              <label for="accountPassword">PASSWORD</label>
-              <br/>
-
-              <input type="password" id="accountPassword" class="wInput" ng-model="vm.password" focus-me="accounts.mode === 'login'"/>
-              <br/><br/>
-
-              <button class="wButton fade" ng-click="vm.signIn()">LOG IN</button>
-              <span class="divider-2"></span>
-              <button class="wButton fade" ng-click="vm.cancel()">CANCEL</button>
-            </form>
-          </div>
-        </div>
-      </td>
-    </tr>
-    </tbody>
-
-  </table>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 
+
 <div id="wrapper" ng-switch-when="main-screen" ng-cloak>
+    <!-- shared blocks -->
+    <div id="feat-not-active" waves-dialog global="true" show-buttons="false" is-error="true">
+        <h2 class="sectionHeader">NOTICE</h2>
+        <p class="dialog-text">This feature is still under development and not active during the alpha release.</p>
+        <p class="dialog-text">Follow our social media channels to stay up to date with the latest improvements and
+            developments.</p>
+        <div class="modal-media">
+            <a href="https://blog.wavesplatform.com/" target="_blank"><img class="modal-media-img"
+                                                                           src="img/blog_icon.svg"/></a>
+            <a href="https://twitter.com/wavesplatform" target="_blank"><img class="modal-media-img"
+                                                                             src="img/twitter_icon.svg"/></a>
+            <a href="https://www.facebook.com/wavesplatform" target="_blank"><img class="modal-media-img"
+                                                                                  src="img/facebook_icon.svg"/></a>
+            <a href="http://slack.wavesplatform.com/" target="_blank"><img class="modal-media-img"
+                                                                           src="img/slack_icon.svg"/></a>
+            <a href="https://www.reddit.com/r/Wavesplatform/" target="_blank"><img class="modal-media-img"
+                                                                                   src="img/reddit_icon.svg"/></a>
+            <a href="https://vk.com/wavesplatform" target="_blank"><img id="icon-blog" class="modal-media-img"
+                                                                        src="img/vk_icon.svg"/></a>
+        </div>
+    </div>
+    <!-- /shared blocks-->
 
     <!-- HEADER -->
     <header class="fFade noSelect" ng-controller="mainMenuController as menu">
